@@ -61,7 +61,7 @@ jobs:
               tags.push(...snippet);
             }
 
-            const version = ${{ github.ref_name }};
+            const version = '${{ github.ref_name }}';  // TODO: find a more elegant solution to this problem
 
             core.setOutput('latest-tag', semver.maxSatisfying(tags, '*') == version);
             core.setOutput('major-tag', semver.maxSatisfying(tags, '~'+semver.major(version)) == version);
