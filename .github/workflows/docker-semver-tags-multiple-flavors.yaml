@@ -61,11 +61,15 @@ jobs:
               tags.push(...snippet);
             }
 
+            // Filter for SemVer-valid Git tags
+            const versions = tags.filter(t => semver.valid(t))
+                                 .filter(v => semver.major(v) != 0);
+
             const version = '${{ github.ref_name }}';  // TODO: find a more elegant solution to this problem
 
-            core.setOutput('latest-tag', semver.maxSatisfying(tags, '*') == version);
-            core.setOutput('major-tag', semver.maxSatisfying(tags, '~'+semver.major(version)) == version);
-            core.setOutput('minor-tag', semver.maxSatisfying(tags, '~'+semver.major(version)+'.'+semver.minor(version)) == version);
+            core.setOutput('latest-tag', semver.maxSatisfying(versions, '*') == version);
+            core.setOutput('major-tag', semver.maxSatisfying(versions, '~'+semver.major(version)) == version);
+            core.setOutput('minor-tag', semver.maxSatisfying(versions, '~'+semver.major(version)+'.'+semver.minor(version)) == version);
 
   release:
     needs: tags
@@ -142,9 +146,9 @@ jobs:
             # 1.1-myflavor
             type=semver,pattern={{major}}.{{minor}},enable=${{ (needs.tags.outputs.minor == 'true') || 'false' }}
             # 1 (disabled if major is zero)
-            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') && (needs.tags.outputs.major == 'true') && matrix.default-flavor || 'false' }}
+            type=semver,pattern={{major}},enable=${{ (needs.tags.outputs.major == 'true') && matrix.default-flavor || 'false' }}
             # 1-myflavor
-            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') && (needs.tags.outputs.major == 'true') || 'false' }}
+            type=semver,pattern={{major}},enable=${{ (needs.tags.outputs.major == 'true') || 'false' }}
             # latest
             type=raw,value=latest,enable=${{ (needs.tags.outputs.latest == 'true') && matrix.default-flavor || 'false' }}
             # myflavor
