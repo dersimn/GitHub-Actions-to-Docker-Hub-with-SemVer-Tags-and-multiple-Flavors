@@ -84,10 +84,24 @@ jobs:
 
             core.endGroup();
 
-            core.setOutput('this-version-tag', semver.clean(version));
-            core.setOutput('latest-tag', semver.maxSatisfying(versions, '*') == version);
-            core.setOutput('major-tag', semver.maxSatisfying(versions, '~'+semver.major(version)) == version);
-            core.setOutput('minor-tag', semver.maxSatisfying(versions, '~'+semver.major(version)+'.'+semver.minor(version)) == version);
+            // Outputs
+            core.startGroup('Outputs');
+
+            const thisVersionTag = semver.clean(version);
+            const latestTag = semver.maxSatisfying(versions, '*') == version;
+            const majorTag = semver.maxSatisfying(versions, '~'+semver.major(version)) == version;
+            const minorTag = semver.maxSatisfying(versions, '~'+semver.major(version)+'.'+semver.minor(version)) == version;
+
+            core.info(`this-version-tag: ${thisVersionTag}`);
+            core.info(`latest-tag: ${latestTag}`);
+            core.info(`major-tag: ${majorTag}`);
+            core.info(`minor-tag: ${minorTag}`);
+
+            core.setOutput('this-version-tag', thisVersionTag);
+            core.setOutput('latest-tag', latestTag);
+            core.setOutput('major-tag', majorTag);
+            core.setOutput('minor-tag', minorTag);
+            core.endGroup();
 
   release:
     name: Build ${{ matrix.flavor }}
@@ -207,3 +221,10 @@ jobs:
           platforms: ${{ matrix.build-platforms }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Summary
+        run: |
+          echo "Pushed Docker Tags:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.meta.outputs.tags }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
