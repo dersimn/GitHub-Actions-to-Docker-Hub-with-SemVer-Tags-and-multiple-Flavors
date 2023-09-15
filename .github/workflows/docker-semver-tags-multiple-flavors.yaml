@@ -140,6 +140,10 @@ jobs:
             latest=false
           tags: |
             # Semantic Versioning
+            # 1.1.2-build.20220815T2015
+            type=semver,pattern={{version}},suffix=-build.{{date 'YYYYMMDDTHHmm'}},enable=${{ matrix.default-flavor || 'false' }}
+            # 1.1.2-build.20220815T2015-myflavor
+            type=semver,pattern={{version}},suffix=-build.{{date 'YYYYMMDDTHHmm'}}-${{ matrix.flavor }}
             # 1.1.2
             type=semver,pattern={{version}},enable=${{ matrix.default-flavor || 'false' }}
             # 1.1.2-myflavor
