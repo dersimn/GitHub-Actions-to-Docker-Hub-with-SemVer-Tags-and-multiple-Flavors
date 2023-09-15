@@ -27,6 +27,7 @@ jobs:
   tags:
     runs-on: ubuntu-latest
     outputs:
+      this-version: ${{steps.getdata.outputs.this-version-tag }}
       latest: ${{steps.getdata.outputs.latest-tag || 'false' }}
       major: ${{steps.getdata.outputs.major-tag || 'false'}}
       minor: ${{steps.getdata.outputs.minor-tag || 'false'}}
@@ -73,6 +74,7 @@ jobs:
 
             const version = '${{ github.ref_name }}';  // TODO: find a more elegant solution to this problem
 
+            core.setOutput('this-version-tag', semver.clean(version));
             core.setOutput('latest-tag', semver.maxSatisfying(versions, '*') == version);
             core.setOutput('major-tag', semver.maxSatisfying(versions, '~'+semver.major(version)) == version);
             core.setOutput('minor-tag', semver.maxSatisfying(versions, '~'+semver.major(version)+'.'+semver.minor(version)) == version);
@@ -109,8 +111,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         with:
           base-image: ${{ matrix.base-image }}
-          # TODO: this check works only for the lastest image
-          image: ${{ env.TARGET_IMAGE }}:${{ matrix.flavor }}
+          image: ${{ env.TARGET_IMAGE }}:${{ needs.tags.outputs.this-version }}-${{ matrix.flavor }}
           # Platforms containing variants are (at the moment) not supported by
           # update checker, see
           # <https://github.com/lucacome/docker-image-update-checker/issues/27>.
