@@ -14,7 +14,6 @@ jobs:
       - name: Get Git tags and determine value
         id: getdata
         uses: satackey/action-js-inline@v0.0.2
-        if: ${{ github.ref_type == 'tag' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
