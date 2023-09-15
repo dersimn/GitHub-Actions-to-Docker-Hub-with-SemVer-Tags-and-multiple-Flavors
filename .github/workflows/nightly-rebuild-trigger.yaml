@@ -59,7 +59,7 @@ jobs:
               if (match) matches.add(match);
             }
 
-            core.setOutput('versions', JSON.stringify(versions));
+            core.setOutput('versions', JSON.stringify(matches));
 
   trigger-nightly-updates:
     needs: filter-update-tags
