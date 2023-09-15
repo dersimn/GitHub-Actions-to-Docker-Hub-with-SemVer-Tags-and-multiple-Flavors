@@ -2,6 +2,12 @@ name: Docker build and publish
 
 on:
   workflow_dispatch:
+    inputs:
+      force_build:
+        description: Force build even if base image was not updated
+        required: false
+        default: false
+        type: boolean
   push:
     branches:
       # Run on every branch
@@ -100,7 +106,7 @@ jobs:
       - name: Check if update for base image is available
         id: check
         uses: lucacome/docker-image-update-checker@v1
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         with:
           # Because the variable "matrix.base-image" does not contain a tag, the
           # "latest" tag is checked by default.
@@ -121,7 +127,7 @@ jobs:
       - name: Decide to continue or skip
         id: should-build
         # If check-step was skipped, output variable will be empty
-        run: echo continue=${{ (steps.check.outputs.needs-updating == 'true') || (github.event_name != 'schedule') }} >> $GITHUB_OUTPUT
+        run: echo continue=${{ (steps.check.outputs.needs-updating == 'true') || (github.event_name != 'workflow_dispatch') || inputs.force_build }} >> $GITHUB_OUTPUT
 
       - name: Checkout
         uses: actions/checkout@v3
